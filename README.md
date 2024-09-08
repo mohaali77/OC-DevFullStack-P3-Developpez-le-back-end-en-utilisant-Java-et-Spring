@@ -4,10 +4,10 @@
 Ce projet consiste en une application web de gestion d'annonces de location (Chatop), développée en utilisant Java et Spring Boot pour le backend, ainsi qu'Angular pour le frontend. Ce guide vous accompagnera étape par étape pour configurer et exécuter l'application.
 
 ## Prérequis
-- **Java 17+** 
+- **Java 17** 
 - **Node.js** 
 - **Npm** 
-- **MySQL** 
+- **MySQL8** 
 - **Git** 
 
 ## Installation du Frontend
