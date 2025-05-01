@@ -56,37 +56,47 @@ public class LoginController {
 	                            value = "{\n  \"message\": \"error\"\n}"
 	                        )
 	                    )
+	                ), 
+	                @ApiResponse(
+	                		description = "Internal Server Error",
+	                        responseCode = "500",
+	                        content = @Content(mediaType = "application/json")
 	                )
 	            }
 	        )
 
 	@PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody LoginDTO loginDTO) {
         try {
+        	// Récupération de l'email et du mot de passe depuis le corps de la requête
             String email = loginDTO.getEmail();
             String password = loginDTO.getPassword();
 
-            // Vérifier les identifiants de connexion
+            // Appel du service qui vérifie si les identifiants sont valides
             boolean isAuthenticated = userService.authenticateUser(email, password);
             
+            // Si les identifiants sont valides
             if (isAuthenticated) {
-                // Créer un objet Authentication manuellement
+                
+                // Création d'un objet Authentication avec l'email comme identifiant (pas de mot de passe, pas de rôles ici)
                 Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
 
-                // Générer le token
+                // Génération du token JWT en utilisant l'objet Authentication
                 String token = jwtService.generateToken(authentication);
                                 
+                // Retour d'une réponse 200 OK avec le token généré
                 return ResponseEntity.ok(Map.of("token", token));
 
             } else {
-                
+                // Si les identifiants sont incorrects, retour d'une erreur 401 Unauthorized
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "error"));
-
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred during login: " + e.getMessage());
+            // En cas d'erreur interne, retour d'une réponse 500 avec le message d'erreur
+        	 return ResponseEntity.internalServerError().body(null);
         }
+    
     }
 	
 }

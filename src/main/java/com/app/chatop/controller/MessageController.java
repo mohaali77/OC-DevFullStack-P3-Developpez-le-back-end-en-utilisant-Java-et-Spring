@@ -4,14 +4,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.chatop.dto.MessageDTO;
-import com.app.chatop.model.MessageModel;
 import com.app.chatop.service.MessageService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,34 +45,29 @@ public class MessageController {
                     content = @Content(mediaType = "application/json")
                 ),
                 @ApiResponse(
-                    description = "Unauthorized - Authentication required",
-                    responseCode = "401",
+                    description = "Internal server error",
+                    responseCode = "500",
                     content = @Content(mediaType = "application/json")
                 )
             }
         )
     	    
-
+    
     @PostMapping("/messages")
-    public ResponseEntity<?> sendMessage(@RequestBody MessageDTO messageDTO) {
+    public ResponseEntity<Map<String, String>> sendMessage(@RequestBody MessageDTO messageDTO) {
         try {
-            // Créer une nouvelle instance de MessageModel avec les données fournies par le DTO
-            MessageModel message = new MessageModel();
-            message.setMessage(messageDTO.getMessage());
-            message.setUserId(messageDTO.getUser_id());
-            message.setRentalId(messageDTO.getRental_id());
-
-            // Sauvegarder l'objet Message dans la base de données
-            messageService.saveMessage(message);
+        	
+            // Appel du service avec le DTO en paramètre pour le convertir et enregistré le message
+            messageService.saveMessage(messageDTO);
             
             return ResponseEntity.ok(Map.of("message", "Message sent with success"));
 
         } catch (IllegalArgumentException e) {
             // Retourne une réponse 400 si le contenu du message est invalide
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid message content"));
+            
         } catch (Exception e) {
-            // Retourne une réponse 401 si l'authentification est requise
-            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized: Authentication required"));
+            return ResponseEntity.internalServerError().body(Map.of("message", "Internal server error"));
         }
     }
     

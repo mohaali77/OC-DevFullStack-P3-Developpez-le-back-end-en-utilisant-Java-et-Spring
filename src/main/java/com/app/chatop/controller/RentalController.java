@@ -3,20 +3,16 @@ package com.app.chatop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.app.chatop.dto.RentalDTO;
 import com.app.chatop.dto.RentalGetDTO;
-import com.app.chatop.model.RentalModel;
 import com.app.chatop.service.RentalService;
-import com.app.chatop.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -30,14 +26,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+
 public class RentalController {
 
     @Autowired
     private RentalService rentalService;
-    
-    @Autowired
-    private UserService userService;
-    
+
     
     @Operation(
             summary = "Get all rentals",
@@ -55,31 +49,30 @@ public class RentalController {
                     description = "Unauthorized",
                     responseCode = "401",
                     content = @Content(mediaType = "application/json")
+                ),
+                @ApiResponse(
+                		description = "Internal Server Error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
                 )
             }
         )
     
     @GetMapping("/rentals")
     public ResponseEntity<Map<String, List<RentalGetDTO>>> getAllRentals() {
-        List<RentalModel> rentals = rentalService.getRentals();
-        
-        // Convertir RentalModel en RentalGetDTO
-        List<RentalGetDTO> rentalDTOs = rentals.stream().map(rental -> {
-            RentalGetDTO rentalDTO = new RentalGetDTO();
-            rentalDTO.setId(rental.getId());
-            rentalDTO.setName(rental.getName());
-            rentalDTO.setSurface(rental.getSurface());
-            rentalDTO.setPrice(rental.getPrice());
-            rentalDTO.setPicture(rental.getPicture());
-            rentalDTO.setDescription(rental.getDescription());
-            rentalDTO.setOwnerId(rental.getOwnerId());
-            rentalDTO.setCreatedAt(rental.getCreatedAt());
-            rentalDTO.setUpdatedAt(rental.getUpdatedAt());
-            return rentalDTO;
-        }).toList();
+    	
+    	try{
+    	
+    	List<RentalGetDTO> rentalDTOs = rentalService.getRentals();
         
         return ResponseEntity.ok(Map.of("rentals", rentalDTOs));
+        }
+    	
+    	catch (Exception e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
+    
 
     
     @Operation(
@@ -103,40 +96,27 @@ public class RentalController {
                     content = @Content(
                         mediaType = "application/json"                 
                     )
+                ),
+                @ApiResponse(
+                		description = "Internal Server Error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
                 )
             }
         )
     
- // Route pour créer une nouvelle annonce
+    // Route pour créer une nouvelle annonce
     @PostMapping("/rentals")
-    public ResponseEntity<?> createRental(@RequestBody RentalDTO rentalDTO) {
+    public ResponseEntity<Map<String, String>> createRental(@RequestBody RentalDTO rentalDTO) {
         try {
         	
-            // Récupérer l'email de l'utilisateur connecté
-            String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-            int ownerId = userService.findUserIdByEmail(currentUserEmail);
-
-            // Sauvegarde de l'image
-            String pictureName = rentalService.savePicture(rentalDTO.getPicture());
-            String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-            String picturePath = baseUrl + "/" + pictureName;
-
-            // Création d'un nouvel objet RentalModel
-            RentalModel rental = new RentalModel();
-            rental.setName(rentalDTO.getName());
-            rental.setSurface(rentalDTO.getSurface());
-            rental.setPrice(rentalDTO.getPrice());
-            rental.setDescription(rentalDTO.getDescription());
-            rental.setOwnerId(ownerId);
-            rental.setPicture(picturePath); // Assigner l'image
-
-            // Sauvegarder l'objet Rental dans la base de données
-           rentalService.saveRental(rental);
+           // on appelle le service qui se chargera de créer et d'enregistrer le rental
+           rentalService.createRental(rentalDTO);
                   
            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Rental created successfully!"));
    
         } catch (Exception e) {
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred during rental creation: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(Map.of("message", "Internal server error"));
         }
     }
     
@@ -157,26 +137,30 @@ public class RentalController {
                     description = "Unauthorized",
                     responseCode = "401",
                     content = @Content(mediaType = "application/json")
+                ),
+                @ApiResponse(
+                		description = "Internal Server Error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
                 )
                 }
               
         )
     
     @PutMapping("/rentals/{id}")
-    public ResponseEntity<?> updateRental(@PathVariable int id, @RequestBody RentalDTO rentalDTO) {
-        // Récupérer l'annonce à partir de la base de données
-        RentalModel existingRental = rentalService.getRentalById(id);
-
-        // Mise à jour des champs disponibles dans le DTO
-        existingRental.setName(rentalDTO.getName());
-        existingRental.setSurface(rentalDTO.getSurface());
-        existingRental.setPrice(rentalDTO.getPrice());
-        existingRental.setDescription(rentalDTO.getDescription());
-
-        // Sauvegarder les modifications
-        rentalService.saveRental(existingRental);
+    public ResponseEntity<Map<String, String>> updateRental(@PathVariable int id, @RequestBody RentalDTO rentalDTO) {
+        
+    	try {
+    		
+        rentalService.updateRental(rentalDTO, id);
         
         return ResponseEntity.ok(Map.of("message", "Rental updated ! "));
+        
+        }
+    	catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "Internal server error"));
+        }
+        
 
     }
     
@@ -193,27 +177,35 @@ public class RentalController {
                     description = "Unauthorized",
                     responseCode = "401",
                     content = @Content(mediaType = "application/json")
+                ),
+                @ApiResponse(
+                	    description = "Rental not found",
+                	    responseCode = "404",
+                	    content = @Content(mediaType = "application/json")
+                	),
+                @ApiResponse(
+                		description = "Internal Server Error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
                 )
             }
         )
     
     @GetMapping("/rentals/{id}")
     public ResponseEntity<RentalGetDTO> getRentalById(@PathVariable int id) {
-        RentalModel rental = rentalService.getRentalById(id);
+    	
+    	try {
+    		
+    		RentalGetDTO rentalDTO = rentalService.getRentalById(id);
 
-        // Mapping RentalModel to RentalGetDTO
-        RentalGetDTO rentalDTO = new RentalGetDTO();
-        rentalDTO.setId(rental.getId());
-        rentalDTO.setName(rental.getName());
-        rentalDTO.setSurface(rental.getSurface());
-        rentalDTO.setPrice(rental.getPrice());
-        rentalDTO.setPicture(rental.getPicture());
-        rentalDTO.setDescription(rental.getDescription());
-        rentalDTO.setOwnerId(rental.getOwnerId());
-        rentalDTO.setCreatedAt(rental.getCreatedAt());
-        rentalDTO.setUpdatedAt(rental.getUpdatedAt());
-
-        return ResponseEntity.ok(rentalDTO);
+    		return ResponseEntity.ok(rentalDTO);
+            
+    		}
+        
+        
+        catch (Exception e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
     
         

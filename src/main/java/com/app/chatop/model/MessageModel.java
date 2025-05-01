@@ -11,9 +11,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table (name = "messages")
+@Getter
+@Setter
 public class MessageModel {
 	
 	@Id
@@ -25,64 +30,21 @@ public class MessageModel {
 	private int rentalId;
 	
 	@Column(name="user_id")
+	@NotNull
 	private int userId;
 	
-	@Column(name="message", length = 2000)
+	@Column(name="message", length = 2000, nullable = false)
+	@NotNull
 	private String message;
 	
 	@CreationTimestamp
-	@Column(name="created_at")
+	@Column(name="created_at", updatable = false, nullable = false)
+	@NotNull
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name="updated_at")
+    @Column(name="updated_at", nullable = false)
+    @NotNull
     private LocalDateTime updatedAt;
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public int getRentalId() {
-		return rentalId;
-	}
-
-	public void setRentalId(int rentalId) {
-		this.rentalId = rentalId;
-	}
-
-	public int getUserId() {
-		return userId;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
 }

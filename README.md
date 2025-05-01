@@ -89,7 +89,7 @@ Ce projet consiste en une application web de gestion d'annonces de location (Cha
 Vous pouvez accéder à la documentation de l'API générée automatiquement par Swagger à l'adresse suivante une fois le backend lancé :
 
 ```bash
-http://localhost:3001/swagger-ui.html
+http://localhost:3001/swagger-ui/index.html
 ```
 
 

@@ -2,16 +2,26 @@ package com.app.chatop.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class RentalDTO {
 
+	@NotNull
     private String name;
+	
     private double surface;
+    
     private double price;
+    
+    @NotNull
     private String description;
-    private MultipartFile picture; // Utilisé pour l'image
+    
+    private MultipartFile picture;
 
-    // Constructeurs
-    public RentalDTO() {}
 
     public RentalDTO(String name, double surface, double price, String description, MultipartFile picture) {
         this.name = name;
@@ -21,44 +31,4 @@ public class RentalDTO {
         this.picture = picture;
     }
 
-    // Getters et Setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getSurface() {
-        return surface;
-    }
-
-    public void setSurface(double surface) {
-        this.surface = surface;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public MultipartFile getPicture() {
-        return picture;
-    }
-
-    public void setPicture(MultipartFile picture) {
-        this.picture = picture;
-    }
 }

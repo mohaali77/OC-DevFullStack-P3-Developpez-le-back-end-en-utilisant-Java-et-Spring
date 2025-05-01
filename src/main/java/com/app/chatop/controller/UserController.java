@@ -1,7 +1,5 @@
 package com.app.chatop.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
@@ -44,35 +42,49 @@ public class UserController {
                     description = "Unauthorized",
                     responseCode = "401",
                     content = @Content(mediaType = "application/json")
-                )
+                ), 
+                
+                @ApiResponse(
+                		description = "User not found",
+                	    responseCode = "404",
+                	    content = @Content(mediaType = "application/json")
+                ), 
+                @ApiResponse(
+                		description = "Internal Server Error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
+                		)
             }
         )
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
     	
     	try {
-        UserModel user = userService.findByUserId(id);
+            // Recherche de l'utilisateur en base de données
+            UserModel user = userService.findByUserId(id);
 
-        if (user == null) {
-            return ResponseEntity.notFound().build();
+            // Si aucun utilisateur trouvé, retourne un 404 Not Found
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Création d’un objet DTO à partir de l’entité UserModel
+            UserDTO userDTO = new UserDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+            );
+
+            // Retourne le DTO avec un code 200 OK
+            return ResponseEntity.ok(userDTO);
+        } catch (Exception e) {
+            // En cas d’erreur inattendue, retourne un 500
+            return ResponseEntity.internalServerError().body(null);
         }
-
-        UserDTO userDTO = new UserDTO(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getCreatedAt(),
-            user.getUpdatedAt()
-        );
-
-        return ResponseEntity.ok(userDTO);}
-    	
-    	catch(Exception e) {
-    		
-            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized: Authentication required"));
-
-    	}
+    
     }
     
 }

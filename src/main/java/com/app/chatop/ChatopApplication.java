@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.app.chatop.dto.RentalGetDTO;
 import com.app.chatop.model.RentalModel;
 import com.app.chatop.service.RentalService;
 
@@ -20,7 +21,7 @@ public class ChatopApplication implements CommandLineRunner {
 	
 	@Override
 	public void run(String... args) throws Exception {		
-		Iterable<RentalModel> rentals = rentalService.getRentals();
+		Iterable<RentalGetDTO> rentals = rentalService.getRentals();
 		rentals.forEach(rental -> System.out.println(rental.getName()));
 		
 	}

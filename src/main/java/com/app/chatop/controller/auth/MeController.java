@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.app.chatop.dto.UserDTO;
 import com.app.chatop.model.UserModel;
@@ -41,26 +42,35 @@ public class MeController {
                     )
                 ),
                 @ApiResponse(
+                		description = "User not found",
+                	    responseCode = "404",
+                	    content = @Content(mediaType = "application/json")
+                ), 
+                @ApiResponse(
                     description = "Unauthorized - Invalid token or no user authenticated",
                     responseCode = "401",
                     content = @Content(
                         mediaType = "application/json"
                     )
-                )
+                ), 
+                @ApiResponse(
+                        description = "Internal server error",
+                        responseCode = "500",
+                        content = @Content(mediaType = "application/json")
+                    )
             }
         )
 
 
 	   @GetMapping("/me")
-	    public ResponseEntity<?> getCurrentUser() {
+	    public ResponseEntity<UserDTO> getCurrentUser() {
 	        try {
-	            // Récupérer le principal (nom d'utilisateur ou email) depuis le contexte de sécurité
+	            // Récupérer l'email de l'utilisateur depuis le contexte de sécurité
 	            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-	            System.out.println("Username from SecurityContext: " + username);
 
-	            // Rechercher l'utilisateur dans la base de données par email
+	            // Rechercher l'utilisateur dans la base de données
 	            UserModel user = userRepository.findByEmail(username)
-	                    .orElseThrow(() -> new RuntimeException("User not found"));
+	            		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
 	            // Construire la réponse avec les détails de l'utilisateur
 	            UserDTO userResponseDTO = new UserDTO(
@@ -74,7 +84,7 @@ public class MeController {
 	            return ResponseEntity.ok(userResponseDTO);
 
 	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access: " + e.getMessage());
+	        	return ResponseEntity.internalServerError().body(null);
 	        }
 	    }
 	   

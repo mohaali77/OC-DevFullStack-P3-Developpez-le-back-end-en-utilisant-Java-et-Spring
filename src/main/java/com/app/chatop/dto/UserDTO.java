@@ -2,11 +2,30 @@ package com.app.chatop.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UserDTO {
+	
     private int id;
+    
+    @NotNull
     private String name;
+    
+    @NotNull
     private String email;
+    
+    @NotNull
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    
+    @NotNull
+    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
     public UserDTO(int id, String name, String email, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -17,45 +36,5 @@ public class UserDTO {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 

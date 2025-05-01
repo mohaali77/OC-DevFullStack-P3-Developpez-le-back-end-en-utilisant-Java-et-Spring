@@ -27,34 +27,56 @@ public class SecurityConfig {
     private String jwtKey;
   
 
- // Configuration de sécurité
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth
-                        .requestMatchers("/api/auth/**",
-                                "/static/**", 
-                                "/v3/api-docs/",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**"
-                                ).permitAll()
-                        .anyRequest().authenticated())
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()))
-                .build();
-    }
+	// Configuration de la sécurité HTTP
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	    return http
+	        // Désactive la protection CSRF
+	        .csrf(csrf -> csrf.disable())
+
+	        // Configure la gestion de session en mode stateless (pas de session, on utilise des JWT)
+	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+	        // Définition des règles d'autorisation pour les différentes routes
+	        .authorizeHttpRequests(auth ->
+	            auth
+	                // Autorise l'accès sans authentification à ces chemins :
+	                .requestMatchers(
+	                    "/api/auth/**",       // Routes publiques liées à l'auth (ex: login, register)
+	                    "/static/**",         // Accès aux fichiers statiques (images, etc.)
+	                    "/v3/api-docs/",      // Documentation OpenAPI
+	                    "/v3/api-docs/**",    // Tous les endpoints liés à OpenAPI
+	                    "/swagger-ui/**"      // Interface Swagger UI
+	                ).permitAll()
+
+	                // Toutes les autres routes nécessitent une authentification
+	                .anyRequest().authenticated()
+	        )
+
+	        // Active la vérification du token JWT pour les requêtes
+	        .oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()))
+
+	        // Construit et retourne l'objet SecurityFilterChain
+	        .build();
+	}
+
     
     
     @Bean
     public JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKey = new SecretKeySpec(this.jwtKey.getBytes(), 0, this.jwtKey.getBytes().length,"HMac256");
-        return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
+        // Création de la clé secrète à partir de la clé secrète définie dans application.properties
+        SecretKeySpec secretKey = new SecretKeySpec(this.jwtKey.getBytes(), 0, this.jwtKey.getBytes().length, "HMac256");
+
+        // Construction d'un décodeur JWT basé sur cette clé, avec l'algorithme HS256
+        return NimbusJwtDecoder
+            .withSecretKey(secretKey)
+            .macAlgorithm(MacAlgorithm.HS256)
+            .build();
     }
 
     @Bean
     public JwtEncoder jwtEncoder() {
+        // Utilise la même clé secrète pour signer les JWT
         return new NimbusJwtEncoder(new ImmutableSecret<>(this.jwtKey.getBytes()));
     }
     

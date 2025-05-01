@@ -65,7 +65,7 @@ public class RegisterController {
 
     // Route pour l'inscription
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody RegisterDTO registerDTO) {
         try {
             // Vérifier si l'utilisateur existe déjà en recherchant par email
             if (userService.findUserByEmail(registerDTO.getEmail()).isPresent()) {
@@ -82,7 +82,7 @@ public class RegisterController {
             // Enregistrer le nouvel utilisateur
             userService.registerUser(newUser);
 
-            // Créer un objet Authentication manuellement pour l'utilisateur nouvellement créé
+            // Créer un objet Authentication pour l'utilisateur nouvellement créé
             Authentication authentication = new UsernamePasswordAuthenticationToken(newUser.getEmail(), null, new ArrayList<>());
 
             // Générer le token
@@ -92,7 +92,7 @@ public class RegisterController {
 
         } catch (Exception e) {
             // En cas d'erreur, retournez un message d'erreur plus détaillé
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred during registration: " + e.getMessage());
+        	return ResponseEntity.internalServerError().body(null);
         }
     }
 
