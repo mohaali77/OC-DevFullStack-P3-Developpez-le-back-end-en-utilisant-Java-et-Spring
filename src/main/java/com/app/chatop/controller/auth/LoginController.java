@@ -64,39 +64,45 @@ public class LoginController {
 	                )
 	            }
 	        )
+	    
+	    /**
+	     * Authentifie un utilisateur à partir de son email et mot de passe, puis génère un token JWT s'il est valide.
+	     *
+	     * @param loginDTO L'objet contenant les identifiants de connexion.
+	     * @return Une réponse HTTP 200 contenant un token JWT si l'utilisateur est authentifié avec succès,
+	     *         une réponse 401 si les identifiants sont incorrects,
+	     *         ou une réponse 500 en cas d'erreur interne.
+	     */
 
-	@PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestBody LoginDTO loginDTO) {
-        try {
-        	// Récupération de l'email et du mot de passe depuis le corps de la requête
-            String email = loginDTO.getEmail();
-            String password = loginDTO.getPassword();
-
-            // Appel du service qui vérifie si les identifiants sont valides
-            boolean isAuthenticated = userService.authenticateUser(email, password);
-            
-            // Si les identifiants sont valides
-            if (isAuthenticated) {
-                
-                // Création d'un objet Authentication avec l'email comme identifiant (pas de mot de passe, pas de rôles ici)
-                Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
-
-                // Génération du token JWT en utilisant l'objet Authentication
-                String token = jwtService.generateToken(authentication);
-                                
-                // Retour d'une réponse 200 OK avec le token généré
-                return ResponseEntity.ok(Map.of("token", token));
-
-            } else {
-                // Si les identifiants sont incorrects, retour d'une erreur 401 Unauthorized
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "error"));
-            }
-
-        } catch (Exception e) {
-            // En cas d'erreur interne, retour d'une réponse 500 avec le message d'erreur
-        	 return ResponseEntity.internalServerError().body(null);
-        }
-    
-    }
+		@PostMapping("/login")
+	    public ResponseEntity<Map<String, String>> loginUser(@RequestBody LoginDTO loginDTO) {
+	        try {
+	        	// Récupération de l'email et du mot de passe depuis le corps de la requête
+	            String email = loginDTO.getEmail();
+	            String password = loginDTO.getPassword();
+	
+	            // Appel du service qui vérifie si les identifiants sont valides
+	            boolean isAuthenticated = userService.authenticateUser(email, password);
+	            
+	            // Si les identifiants sont valides
+	            if (isAuthenticated) {
+	                
+	                // Création d'un objet Authentication avec l'email comme identifiant (pas de mot de passe, pas de rôles ici)
+	                Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, new ArrayList<>());
+	
+	                // Appel du service avec l'objet authentication en paramètre pour générer le token JWT
+	                String token = jwtService.generateToken(authentication);
+	                                
+	                return ResponseEntity.ok(Map.of("token", token));
+	
+	            } else {
+	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "error"));
+	            }
+	
+	        } catch (Exception e) {
+	        	 return ResponseEntity.internalServerError().body(null);
+	        }
+	    
+	    }
 	
 }

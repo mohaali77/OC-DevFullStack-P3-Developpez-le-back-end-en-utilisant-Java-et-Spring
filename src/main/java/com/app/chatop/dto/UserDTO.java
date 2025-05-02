@@ -28,13 +28,5 @@ public class UserDTO {
     @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
-    public UserDTO(int id, String name, String email, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
 }
 

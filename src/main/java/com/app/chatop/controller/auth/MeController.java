@@ -61,8 +61,15 @@ public class MeController {
             }
         )
 
-
-	   @GetMapping("/me")
+    	
+	    /**
+	     * Récupère les informations de l'utilisateur actuellement connecté à partir du token JWT.
+	     *
+	     * @return Une réponse HTTP 200 contenant les informations de l'utilisateur si trouvé,
+	     *         une réponse 404 si aucun utilisateur ne correspond à l'identifiant du token,
+	     *         ou une réponse 500 en cas d'erreur interne.
+	     */
+	    @GetMapping("/me")
 	    public ResponseEntity<UserDTO> getCurrentUser() {
 	        try {
 	            // Récupérer l'email de l'utilisateur depuis le contexte de sécurité
@@ -73,13 +80,12 @@ public class MeController {
 	            		.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
 	            // Construire la réponse avec les détails de l'utilisateur
-	            UserDTO userResponseDTO = new UserDTO(
-	                    user.getId(),
-	                    user.getName(),
-	                    user.getEmail(),
-	                    user.getCreatedAt(),
-	                    user.getUpdatedAt()
-	            );
+	            UserDTO userResponseDTO = new UserDTO();
+	            userResponseDTO.setId(user.getId());
+	            userResponseDTO.setName(user.getName());
+	            userResponseDTO.setEmail(user.getEmail());
+	            userResponseDTO.setCreatedAt(user.getCreatedAt());
+	            userResponseDTO.setUpdatedAt(user.getUpdatedAt());
 
 	            return ResponseEntity.ok(userResponseDTO);
 

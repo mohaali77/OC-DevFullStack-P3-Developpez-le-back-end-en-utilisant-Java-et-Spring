@@ -57,6 +57,14 @@ public class UserController {
             }
         )
 
+    /**
+     * Récupère les informations d'un utilisateur en fonction de son identifiant.
+     *
+     * @param id L'identifiant unique de l'utilisateur à récupérer.
+     * @return Une réponse HTTP 200 contenant les données de l'utilisateur si trouvé,
+     *         une réponse 404 si l'utilisateur n'existe pas,
+     *         ou une réponse 500 en cas d'erreur interne.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
     	
@@ -69,19 +77,17 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
 
-            // Création d’un objet DTO à partir de l’entité UserModel
-            UserDTO userDTO = new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-            );
+            // Création d’un objet DTO à partir de l’entité UserModel           
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(user.getId());
+            userDTO.setName(user.getName());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setCreatedAt(user.getCreatedAt());
+            userDTO.setUpdatedAt(user.getUpdatedAt());
+                
 
-            // Retourne le DTO avec un code 200 OK
             return ResponseEntity.ok(userDTO);
         } catch (Exception e) {
-            // En cas d’erreur inattendue, retourne un 500
             return ResponseEntity.internalServerError().body(null);
         }
     

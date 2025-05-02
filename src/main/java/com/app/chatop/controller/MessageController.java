@@ -51,19 +51,27 @@ public class MessageController {
                 )
             }
         )
-    	    
+    
+    
+    /**
+     * Envoie un message à partir des données fournies dans le corps de la requête.
+     *
+     * @param messageDTO L'objet contenant les informations du message à envoyer.
+     * @return Une réponse HTTP 200 si le message est envoyé avec succès,
+     *         ou 400 si le message est invalide,
+     *         ou 500 en cas d'erreur interne.
+     */
     
     @PostMapping("/messages")
     public ResponseEntity<Map<String, String>> sendMessage(@RequestBody MessageDTO messageDTO) {
         try {
         	
-            // Appel du service avec le DTO en paramètre pour le convertir et enregistré le message
+            // Appel du service avec le DTO en paramètre pour le convertir et enregistrer le message
             messageService.saveMessage(messageDTO);
             
             return ResponseEntity.ok(Map.of("message", "Message sent with success"));
 
         } catch (IllegalArgumentException e) {
-            // Retourne une réponse 400 si le contenu du message est invalide
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid message content"));
             
         } catch (Exception e) {

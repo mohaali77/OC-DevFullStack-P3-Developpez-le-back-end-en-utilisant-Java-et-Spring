@@ -63,7 +63,15 @@ public class RegisterController {
     	)
 
 
-    // Route pour l'inscription
+    /**
+     * Enregistre un nouvel utilisateur à partir des données fournies, puis retourne un token JWT s'il est créé avec succès.
+     *
+     * @param registerDTO L'objet contenant les informations d'enregistrement.
+     * @return Une réponse HTTP 200 contenant un token JWT si l'enregistrement réussit,
+     *         une réponse 400 si l'email est déjà utilisé,
+     *         ou une réponse 500 en cas d'erreur interne.
+     */
+    
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody RegisterDTO registerDTO) {
         try {
@@ -79,19 +87,18 @@ public class RegisterController {
             newUser.setEmail(registerDTO.getEmail());
             newUser.setPassword(registerDTO.getPassword());
 
-            // Enregistrer le nouvel utilisateur
+            // Appel du service pour enregistrer un nouvel utilisateur
             userService.registerUser(newUser);
 
             // Créer un objet Authentication pour l'utilisateur nouvellement créé
             Authentication authentication = new UsernamePasswordAuthenticationToken(newUser.getEmail(), null, new ArrayList<>());
 
-            // Générer le token
+            // Appel du service avec l'objet authentication en paramètre pour générer le token JWT
             String token = jwtService.generateToken(authentication);
 
             return ResponseEntity.ok(Map.of("token", token));
 
         } catch (Exception e) {
-            // En cas d'erreur, retournez un message d'erreur plus détaillé
         	return ResponseEntity.internalServerError().body(null);
         }
     }

@@ -22,13 +22,4 @@ public class RentalDTO {
     
     private MultipartFile picture;
 
-
-    public RentalDTO(String name, double surface, double price, String description, MultipartFile picture) {
-        this.name = name;
-        this.surface = surface;
-        this.price = price;
-        this.description = description;
-        this.picture = picture;
-    }
-
 }

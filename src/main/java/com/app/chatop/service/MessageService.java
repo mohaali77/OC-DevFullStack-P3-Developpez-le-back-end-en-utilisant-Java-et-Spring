@@ -20,30 +20,39 @@ public class MessageService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	 public MessageModel saveMessage(MessageDTO messageDTO) {
+	/**
+	 * Crée et enregistre un message dans la base de données à partir des données fournies.
+	 *
+	 * @param messageDTO L'objet contenant le contenu du message et l'identifiant de l'annonce concernée.
+	 * @return L'objet {@link MessageModel} enregistré.
+	 */
+	public MessageModel saveMessage(MessageDTO messageDTO) {
 		 
+		 	//Renvoie une erreur si le contenu du message est vide 
 		 	if (messageDTO.getMessage().isBlank()) {
 			    throw new IllegalArgumentException("Le contenu du message ne peut pas être vide.");
 			}
 
+		 	//Renvoie une erreur si l'identifiant de l'annonce est invalide.
 	        if (messageDTO.getRental_id() <= 0) {
 	            throw new IllegalArgumentException("L'identifiant de l'annonce est invalide.");
 	        }
 		 
-		  // Récupération de l'utilisateur authentifié 
+	        // Récupération de l'email l'utilisateur authentifié 
 	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	        String email = authentication.getName();
 
-	      // Recherche de l'utilisateur en base
+	        // Recherche de l'utilisateur en base de données
 	        UserModel user = userRepository.findByEmail(email)
 	            .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable."));
 		 
-	      // Création du message
+	        // Conversion du message de DTO à entité
 	        MessageModel message = new MessageModel();
 	        message.setMessage(messageDTO.getMessage());
 	        message.setRentalId(messageDTO.getRental_id());
 	        message.setUserId(user.getId());
-         
-	     return messageRepository.save(message);
-	 }
+	        
+	        //Enregistrement du message
+	        return messageRepository.save(message);
+	}
 }
